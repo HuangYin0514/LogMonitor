@@ -18,4 +18,10 @@ public class SpiltTest {
         System.out.println(a);
         System.out.println(b);
     }
+
+    @Test
+    public void subTest() {
+        String a = "error: Caused by: java.lang.NoClassDefFoundError: com/starit/gejie/dao/SysNameDao";
+        System.out.println(a.substring(4));
+    }
 }

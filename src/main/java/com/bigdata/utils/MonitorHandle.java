@@ -4,6 +4,7 @@ import com.bigdata.domian.App;
 import com.bigdata.domian.Message;
 import com.bigdata.domian.Rule;
 import com.bigdata.domian.User;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
@@ -31,7 +32,37 @@ public class MonitorHandle implements Serializable {
     }
 
     public static Message parser(String line) {
-        line.split("||");
+        String[] messageArr = line.split("\\|\\|");
+        if (messageArr.length != 2) {
+            return null;
+        }
+
+        if (StringUtils.isBlank(messageArr[0]) || StringUtils.isBlank(messageArr[1])) {
+            return null;
+        }
+        //检验当前日志所属的appid是否是经过授权的。
+        if (appIdisValid(messageArr[0].trim().substring(4))) {
+            Message message = new Message();
+            message.setAppId(messageArr[0].trim().substring(4));
+            message.setLine(messageArr[1].substring(4));
+            return message;
+        }
         return null;
+    }
+
+    /**
+     * 验证appid是否经过授权
+     */
+    private static boolean appIdisValid(String appId) {
+        try {
+            for (App app : appList) {
+                if (app.getId() == Integer.parseInt(appId)) {
+                    return true;
+                }
+            }
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return false;
     }
 }
