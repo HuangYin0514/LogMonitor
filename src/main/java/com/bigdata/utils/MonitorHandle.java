@@ -24,7 +24,13 @@ public class MonitorHandle implements Serializable {
 
     private static final long serialVersionUID = -8789857575784112738L;
     private static Logger logger = Logger.getLogger(MonitorHandle.class);
+   /*
+    *<appId,list<rule>>
+    */
     private static Map<String, List<Rule>> ruleMap;
+    /**
+     * <appId,List<user>>
+     */
     private static Map<String, List<User>> userMap;
     private static List<App> appList;
     private static List<User> userList;
@@ -47,10 +53,34 @@ public class MonitorHandle implements Serializable {
         if (appIdisValid(messageArr[0].trim().substring(4))) {
             Message message = new Message();
             message.setAppId(messageArr[0].trim().substring(4));
-            message.setLine(messageArr[1].substring(4));
+            message.setLine(messageArr[1]);
             return message;
         }
         return null;
+    }
+
+    /**
+     * 对日志进行规制判定，看看是否触发规则
+     *
+     * @param message
+     * @return
+     */
+    public static boolean trigger(Message message) {
+        if (ruleMap == null) {
+            load();
+        }
+        List<Rule> keywordByAppIdList = ruleMap.get(message.getAppId());
+        for (Rule rule : keywordByAppIdList) {
+            //如果日志中包含过滤过的关键词，即为匹配成功
+            // message.getLine() 从flume中收集过来，经kafka之后，在filterBolt解析出来的message对象
+            //rule.getKeyword() 用户在界面上配置的
+            if (message.getLine().contains(rule.getKeyword())) {
+                message.setRuleId(rule.getId() + "");
+                message.setKeyword(rule.getKeyword());
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -163,5 +193,41 @@ public class MonitorHandle implements Serializable {
         }
         return map;
     }
+
+    /**
+     * 配置scheduleLoad重新加载底层数据模型。
+     */
+    public static synchronized void reloadDataModel() {
+        // * thread 1  reloaded(true)---->false
+        // * thread 2 reloaded(false)
+        // * thread 3 reloaded(false)
+        // * thread 1 reloaded(false)
+        // * thread 2 reloaded(false)
+        // * thread 3 reloaded(false)
+        if (reloaded) {
+            long start = System.currentTimeMillis();
+            userList = loadUserList();
+            appList = loadAppList();
+            ruleMap = loadRuleMap();
+            userMap = loadUserMap();
+            reloaded = false;
+            logger.info("配置文件reload完成，时间：" + System.currentTimeMillis() + " 耗时：" + (System.currentTimeMillis() - start));
+        }
+    }
+    /**
+     * 定时加载配置信息
+     * 配合reloadDataModel模块一起使用。
+     * 主要实现原理如下：
+     * 1，获取分钟的数据值，当分钟数据是10的倍数，就会触发reloadDataModel方法，简称reload时间。
+     * 2，reloadDataModel方式是线程安全的，在当前worker中只有一个线程能够操作。
+     * 3，为了保证当前线程操作完毕之后，其他线程不再重复操作，设置了一个标识符reloaded。
+     * 在非reload时间段时，reloaded一直被置为true；
+     * 在reload时间段时，第一个线程进入reloadDataModel后，加载完毕之后会将reloaded置为false。
+     */
+    public static void scheduleLoad() {
+       /* String date = DataUtils*/
+    }
+
+
 
 }

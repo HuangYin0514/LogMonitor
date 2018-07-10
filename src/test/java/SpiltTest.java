@@ -1,5 +1,7 @@
 import com.bigdata.domian.App;
+import com.bigdata.domian.Message;
 import com.bigdata.domian.User;
+import com.bigdata.utils.MonitorHandle;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -73,8 +75,15 @@ public class SpiltTest {
         List<String> strings = map.get("1");
 //        strings = new ArrayList<String>();
 //        map.put("1", strings);
-
         System.out.println(map);
+    }
+
+
+    @Test
+    public void testParser() {
+        String line = "aid:10||error: Caused by: java.lang.NoClassDefFoundError: com/starit/gejie/dao/SysNameDao";
+        Message parser = MonitorHandle.parser(line);
+        System.out.println(parser);
 
     }
 }
