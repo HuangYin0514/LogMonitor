@@ -18,13 +18,13 @@ public class StringScheme implements Scheme {
 
     public List<Object> deserialize(byte[] ser) {
         try {
-            return new Values(new String(ser));
+            return new Values(new String(ser),new String("123"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     public Fields getOutputFields() {
-        return new Fields("line");
+        return new Fields("line","b");
     }
 }

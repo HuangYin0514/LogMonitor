@@ -26,7 +26,7 @@ public class FilterBolt extends BaseBasicBolt {
     }
 
     public void execute(Tuple input, BasicOutputCollector collector) {
-        String line = input.getString(0);
+        String line = input.getString(1);
         System.out.println("============================================================");
         System.out.println(line);
         System.out.println("============================================================");
