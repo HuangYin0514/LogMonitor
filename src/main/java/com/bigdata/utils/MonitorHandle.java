@@ -225,7 +225,15 @@ public class MonitorHandle implements Serializable {
      * 在reload时间段时，第一个线程进入reloadDataModel后，加载完毕之后会将reloaded置为false。
      */
     public static void scheduleLoad() {
-       /* String date = DataUtils*/
+        String date = DateUtils.getDateTime();
+        int now = Integer.parseInt(date.split(":")[1]);
+        if (now % 23 == 0) {
+            if (reloaded) {
+                reloadDataModel();
+            }
+        } else {
+            reloaded = true;
+        }
     }
 
 

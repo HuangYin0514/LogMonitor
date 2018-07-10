@@ -1,9 +1,6 @@
 package com.bigdata.utils;
 
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
-
 import java.io.Serializable;
-import java.text.Format;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -15,7 +12,7 @@ import java.util.Date;
  * @author 10713
  * @date 2018/7/10 17:32
  */
-public class DataUtils implements Serializable {
+public class DateUtils implements Serializable {
 
     private static final long serialVersionUID = -8230203929547124640L;
 
@@ -25,15 +22,15 @@ public class DataUtils implements Serializable {
     }
 
     public static String getDateTime() {
-        return DataUtils.getDateTime("yyyy-MM-dd HH:mm:ss");
+        return DateUtils.getDateTime("yyyy-MM-dd HH:mm:ss");
     }
 
     public static String getDate() {
-        return DataUtils.getDateTime("yyyy-MM-dd");
+        return DateUtils.getDateTime("yyyy-MM-dd");
     }
 
     public static String getDate(String formatter) {
-        return DataUtils.getDateTime(formatter);
+        return DateUtils.getDateTime(formatter);
     }
 
     public static String removeTime(String dateTime) {
