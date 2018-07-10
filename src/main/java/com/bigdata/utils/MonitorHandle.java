@@ -1,10 +1,7 @@
 package com.bigdata.utils;
 
 import com.bigdata.dao.LogMonitorDao;
-import com.bigdata.domian.App;
-import com.bigdata.domian.Message;
-import com.bigdata.domian.Rule;
-import com.bigdata.domian.User;
+import com.bigdata.domian.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -236,6 +233,73 @@ public class MonitorHandle implements Serializable {
         }
     }
 
+    /**
+     * 通过app编号，获取当前app的所有负责人列表
+     *
+     * @param appId
+     * @return
+     */
+    public static List<User> getUserIdsByAppId(String appId) {
+        return userMap.get(appId);
+    }
+
+    public static void notifly(String appId, Message message) {
+        List<User> users = getUserIdsByAppId(appId);
+        if (sendMail(appId, users, message)) {
+            message.setIsEmail(1);
+        }
+    }
+
+    //发送邮件
+    private static boolean sendMail(String appId, List<User> userList, Message message) {
+        //1、通过user对象获取发送邮件的地址
+        List<String> receiver = new ArrayList<String>();
+        for (User user : userList) {
+            receiver.add(user.getEmail());
+        }
+        //2、检验appid是否合法
+        for (App app : appList) {
+            if (app.getId() == Integer.parseInt(appId.trim())) {
+                message.setAppName(app.getName());
+                break;
+            }
+        }
+        //3、发送邮件
+        if (receiver.size() >= 1) {
+            String date = DateUtils.getDateTime();
+            String content = "系统【" + message.getAppName() + "】在 " + date + " 触发规则 " + message.getRuleId() + " ，过滤关键字为：" + message.getKeyword() + "  错误内容：" + message.getLine();
+            System.out.println(content);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 保存触发规则的信息，将触发信息写入到mysql数据库中。
+     *
+     * @param record
+     */
+    public static void save(Record record) {
+        new LogMonitorDao().saveRecord(record);
+    }
+
+    /**
+     * 将list转换为String
+     *
+     * @param list
+     * @return
+     */
+    private static String listToStringFormat(List<String> list) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1) {
+                stringBuilder.append(list.get(i));
+            } else {
+                stringBuilder.append(list.get(i)).append(",");
+            }
+        }
+        return stringBuilder.toString();
+    }
 
 
 }

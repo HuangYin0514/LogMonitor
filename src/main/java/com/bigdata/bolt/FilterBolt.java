@@ -43,7 +43,8 @@ public class FilterBolt extends BaseBasicBolt {
         if (MonitorHandle.trigger(message)) {
             collector.emit(new Values(message.getAppId(), message));
         }
-
+        //定时更新规则信息 每十分钟更新一次规则库
+        MonitorHandle.scheduleLoad();
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
