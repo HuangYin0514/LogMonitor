@@ -75,7 +75,7 @@ public class PrepareRecordBolt extends BaseBasicBolt {
         MonitorHandle.notifly(appId, message);
         Record record = new Record();
         try {
-            BeanUtils.copyProperties(record, message);
+            BeanUtils.copyProperties(message, record);
             collector.emit(new Values(record));
         } catch (BeansException e) {
             throw new FailedException("告警模块失败");

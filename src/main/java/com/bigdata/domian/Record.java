@@ -20,5 +20,4 @@ public class Record  implements Serializable {
     private int isPhone;//告警信息是否通过短信告警
     private int isColse;//告警信息是否处理完毕
     private String line;//原始日志信息
-
 }
